@@ -606,11 +606,23 @@ class App(BaseHTTPRequestHandler, object):
         # add built in js, extend with user js
         clients[self.session].js_body_end += ('\n' + '\n'.join(self._get_list_from_app_args('js_body_end')))
         # use the default css, but append a version based on its hash, to stop browser caching
-        with open(self._get_static_file('style.css'), 'rb') as f:
-            md5 = hashlib.md5(f.read()).hexdigest()
-            clients[self.session].css_head = "<link href='/res/style.css?%s' rel='stylesheet' />\n" % md5
+
+        # with open(self._get_static_file('style.css'), 'rb') as f:
+        #     md5 = hashlib.md5(f.read()).hexdigest()
+        #     clients[self.session].css_head = "<link href='/res/style.css?%s' rel='stylesheet' />\n" % md5
+        
         # add built in css, extend with user css
         clients[self.session].css_head += ('\n' + '\n'.join(self._get_list_from_app_args('css_head')))
+
+        try:
+            if (self._get_list_from_app_args('default_theme')[0]):
+                with open(self._get_static_file('style.css'), 'rb') as f:
+                    md5 = hashlib.md5(f.read()).hexdigest()
+                    clients[self.session].css_head += "<link href='/res/style.css?%s' rel='stylesheet' />\n" % md5
+        except IndexError:
+            with open(self._get_static_file('style.css'), 'rb') as f:
+                md5 = hashlib.md5(f.read()).hexdigest()
+                clients[self.session].css_head += "<link href='/res/style.css?%s' rel='stylesheet' />\n" % md5
 
         # add user supplied extra html,css,js
         clients[self.session].html_head = '\n'.join(self._get_list_from_app_args('html_head'))
